@@ -219,7 +219,6 @@ Se ha adjuntado el archivo de colección de Postman **[kuspid_hls.postman_collec
 │   └── ws/                 # Servidor WebSockets por canal
 ├── media/
 │   └── segments/           # Segmentos de video provistos (.ts)
-├── specs/                  # Documentación de requerimientos y arquitectura
 ├── web/
 │   ├── static/             # Recursos estáticos (CSS, JS, imágenes, SVG favicon)
 │   ├── login.html          # Vista de Login
