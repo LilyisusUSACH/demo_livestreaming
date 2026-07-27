@@ -22,14 +22,14 @@ func SecurityHeadersMiddleware(next http.Handler) http.Handler {
 		// Referrer Policy
 		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
 
-		// Content Security Policy (Allowing Three.js, HLS.js Workers, CDNs & WebSockets)
+		// Content Security Policy (Allowing Three.js, Swagger, HLS.js Workers, CDNs & WebSockets)
 		w.Header().Set("Content-Security-Policy",
 			"default-src 'self'; "+
 				"script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "+
 				"worker-src 'self' blob:; "+
-				"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "+
+				"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "+
 				"font-src 'self' https://fonts.gstatic.com; "+
-				"img-src 'self' data: blob:; "+
+				"img-src 'self' data: blob: https://validator.swagger.io; "+
 				"media-src 'self' blob:; "+
 				"connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;")
 
