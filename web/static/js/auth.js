@@ -95,6 +95,12 @@ function setAuthMode(mode, animate) {
 
         if (nameGroup) {
             nameGroup.classList.add('active');
+            const nameInput = document.getElementById('name');
+            if (nameInput) {
+                nameInput.disabled = false;
+                nameInput.required = true;
+                nameInput.setAttribute('tabindex', '0');
+            }
         }
         if (submitBtn) submitBtn.innerText = 'Crear cuenta y entrar';
 
@@ -114,8 +120,15 @@ function setAuthMode(mode, animate) {
 
         if (nameGroup) {
             nameGroup.classList.remove('active');
+            const nameInput = document.getElementById('name');
+            if (nameInput) {
+                nameInput.disabled = true;
+                nameInput.required = false;
+                nameInput.setAttribute('tabindex', '-1');
+            }
         }
         if (submitBtn) submitBtn.innerText = 'Entrar a la señal';
+
 
         if (footerText) {
             footerText.innerHTML = '¿Sin cuenta? <a href="#" onclick="toggleAuthMode(event, \'register\')">Crear una</a>';
