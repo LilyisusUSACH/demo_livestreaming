@@ -2,6 +2,8 @@
 
 ¡Bienvenido al repositorio de **Kuspid HLS Live Streaming** en **Go (Golang)**!
 
+> 🌐 **Despliegue en Vivo (Producción GCP):** El aplicativo se encuentra desplegado y funcionando de forma segura en **[https://test.lsignach.cl/player](https://test.lsignach.cl/player)**.
+
 Esta plataforma entrega una solución de nivel productivo para la transmisión de **HLS Live Streaming dinámico con Sliding Window (30 segundos)**, autenticación segura con **Patrón de Doble Token (JWT + Redis 7)**, base de datos **PostgreSQL 16**, caché de revocación y almacenamiento rápido de chat en **Redis 7**, servidor de **WebSockets en tiempo real por canal**, **Hardening de Seguridad** y un **Frontend 3D Cinematográfico** desarrollado con **Three.js y WebGL**.
 
 ---
