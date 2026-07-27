@@ -119,6 +119,9 @@ func construirRouter(h *handler.Handler, cacheSrv *cache.CacheService, limitador
 	mux.HandleFunc("/swagger", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "web/swagger.html")
 	})
+	mux.HandleFunc("/swagger.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "web/swagger.html")
+	})
 	mux.HandleFunc("/swagger.json", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		http.ServeFile(w, r, "web/swagger.json")

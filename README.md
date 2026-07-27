@@ -165,7 +165,7 @@ docker compose up --build -d
 * **Página de Registro**: [https://test.lsignach.cl/register](https://test.lsignach.cl/register)
 * **Página de Login**: [https://test.lsignach.cl/login](https://test.lsignach.cl/login)
 * **Página del Player**: [https://test.lsignach.cl/player](https://test.lsignach.cl/player)
-* **Documentación de la API**: [https://test.lsignach.cl/swagger.html](https://test.lsignach.cl/swagger.html)
+* **Documentación de la API (Swagger)**: [https://test.lsignach.cl/swagger](https://test.lsignach.cl/swagger) (o [swagger.html](https://test.lsignach.cl/swagger.html))
 
 #### En Desarrollo Local:
 * Si estás probando de forma local, puedes cambiar el mapeo en `docker-compose.yml` de `127.0.0.1:8080:8080` a `8080:8080` para acceder desde cualquier interfaz de red a [http://localhost:8080/player](http://localhost:8080/player).
