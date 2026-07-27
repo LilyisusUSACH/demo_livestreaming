@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 )
@@ -119,7 +120,14 @@ func (lim *IPRateLimiter) RateLimit(maxTokens float64, refillRate float64) func(
 func getIP(r *http.Request) string {
 	forwarded := r.Header.Get("X-Forwarded-For")
 	if forwarded != "" {
-		return forwarded
+		parts := strings.Split(forwarded, ",")
+		if len(parts) > 0 {
+			return strings.TrimSpace(parts[0])
+		}
+	}
+	realIP := r.Header.Get("X-Real-IP")
+	if realIP != "" {
+		return realIP
 	}
 	return r.RemoteAddr
 }

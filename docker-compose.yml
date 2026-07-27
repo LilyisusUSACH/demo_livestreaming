@@ -6,8 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: kuspid_hls_app
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     environment:
       - PORT=8080
       - DB_HOST=postgres
@@ -52,6 +52,22 @@ services:
       - redis_data:/data
     restart: unless-stopped
 
+  caddy:
+    image: caddy:2-alpine
+    container_name: kuspid_caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - kuspid_app
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   redis_data:
+  caddy_data:
+  caddy_config:

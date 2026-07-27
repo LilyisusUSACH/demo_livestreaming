@@ -1,0 +1,15 @@
+test.lsignach.cl {
+    # Proxy reverso hacia el contenedor de Go
+    reverse_proxy kuspid_app:8080 {
+        # Caddy maneja automáticamente:
+        # - El forwarding de las cabeceras de IP real (X-Forwarded-For, X-Real-IP)
+        # - Las cabeceras de WebSocket (Upgrade y Connection)
+        # - Los certificados SSL HTTPS de Let's Encrypt / ZeroSSL de forma automática y gratuita
+    }
+
+    # Logs de acceso opcionales para diagnóstico en producción
+    log {
+        output file /var/log/caddy/access.log
+        format json
+    }
+}

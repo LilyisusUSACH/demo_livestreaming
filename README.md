@@ -144,11 +144,15 @@ docker compose up --build
 ```
 
 ### Rutas del Aplicativo
-Una vez levantado el servicio, puedes acceder a:
-* **Página de Registro**: [http://localhost:8080/register](http://localhost:8080/register)
-* **Página de Login**: [http://localhost:8080/login](http://localhost:8080/login)
-* **Página del Player**: [http://localhost:8080/player](http://localhost:8080/player)
-* **Documentación Interactiva de la API (Swagger)**: [http://localhost:8080/swagger.html](http://localhost:8080/swagger.html)
+
+#### En Producción (GCP con Caddy SSL HTTPS):
+* **Página de Registro**: [https://test.lsignach.cl/register](https://test.lsignach.cl/register)
+* **Página de Login**: [https://test.lsignach.cl/login](https://test.lsignach.cl/login)
+* **Página del Player**: [https://test.lsignach.cl/player](https://test.lsignach.cl/player)
+* **Documentación de la API**: [https://test.lsignach.cl/swagger.html](https://test.lsignach.cl/swagger.html)
+
+#### En Desarrollo Local:
+* Si estás probando de forma local, puedes mapear temporalmente el puerto `8080:8080` de `kuspid_app` en tu `docker-compose.yml` para acceder a [http://localhost:8080/player](http://localhost:8080/player).
 
 ---
 
@@ -206,6 +210,7 @@ Se ha adjuntado el archivo de colección de Postman **[kuspid_hls.postman_collec
 │   ├── player.html         # Vista del Player interactivo 3D
 │   ├── swagger.html        # Swagger UI
 │   └── swagger.json        # Especificación OpenAPI 3.0.3
+├── Caddyfile              # Configuración de Caddy Server para SSL HTTPS automático
 ├── Dockerfile              # Dockerfile multi-stage optimizado
 └── docker-compose.yml      # Configuración de orquestación de servicios
 ```
