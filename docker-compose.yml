@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  kuspid_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kuspid_hls_app
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=kuspid
+      - DB_PASSWORD=kuspid_pass
+      - DB_NAME=kuspid_db
+      - DB_SSLMODE=disable
+      - REDIS_ADDR=redis:6379
+      - SEGMENTS_DIR=/app/media/segments
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: kuspid_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=kuspid
+      - POSTGRES_PASSWORD=kuspid_pass
+      - POSTGRES_DB=kuspid_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kuspid -d kuspid_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: kuspid_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:

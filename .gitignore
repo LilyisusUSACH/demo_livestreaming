@@ -1,0 +1,13 @@
+# HLS source archive and its extracted duplicate. The application uses media/segments.
+/hls test/
+/hls test.zip
+
+# Operating-system and local tooling files
+**/.DS_Store
+.agents/
+
+# Local runtime data
+/data/
+*.db
+*.db-shm
+*.db-wal

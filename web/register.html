@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    <title>KUSPID HLS - Crear Cuenta</title>
+    <!-- Google Fonts, Three.js & Style -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <canvas id="webgl-canvas"></canvas>
+
+    <div class="app-wrapper">
+        <header class="navbar">
+            <div class="brand">
+                <div class="brand-diamond"></div>
+                <div>
+                    <div class="brand-title">KUSPID</div>
+                    <div class="brand-subtitle">SEÑAL EN VIVO</div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 1.5rem; align-items: center;">
+                <a id="nav-login-link" href="#" onclick="toggleAuthMode(event, 'login')" style="font-size: .85rem;">Iniciar sesión</a>
+                <span id="nav-login-active" style="display: none; color: var(--text-main); font-weight: 600; font-size: .85rem;">Iniciar sesión</span>
+                <a id="nav-register-link" href="#" onclick="toggleAuthMode(event, 'register')" style="display: none; font-size: .85rem;">Crear cuenta</a>
+            </div>
+        </header>
+
+        <main class="auth-container">
+            <div class="kuspid-card">
+                <div id="card-tag" class="card-tag">NUEVO ESPECTADOR</div>
+                <h1 id="card-title" class="card-title">Crea tu cuenta</h1>
+                <p id="card-desc" class="card-desc">Únete para sintonizar canales en vivo con reacciones 3D.</p>
+
+                <div id="auth-alert" class="alert-message alert-error" style="display: none; padding: .85rem; border-radius: 8px; margin-bottom: 1rem; font-size: .9rem; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5;"></div>
+
+                <form onsubmit="handleAuthFormSubmit(event)">
+                    <div id="name-group" class="form-group active">
+                        <label for="name" class="form-label">Nombre completo</label>
+                        <input type="text" id="name" class="input-kuspid" placeholder="Tu nombre" autocomplete="name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">Correo electrónico</label>
+                        <input type="email" id="email" class="input-kuspid" placeholder="tu@email.com" required autocomplete="email">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1.8rem;">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" id="password" class="input-kuspid" placeholder="••••••••" required autocomplete="new-password">
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="btn-gold">Crear cuenta y entrar</button>
+                </form>
+
+                <div id="footer-text" style="text-align: center; margin-top: 1.5rem; font-size: .85rem; color: var(--text-muted);">
+                    ¿Ya tienes cuenta? <a href="#" onclick="toggleAuthMode(event, 'login')">Inicia sesión</a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/scene3d.js"></script>
+    <script src="/static/js/auth.js"></script>
+</body>
+</html>

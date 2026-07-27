@@ -1,0 +1,362 @@
+{
+  "info": {
+    "_postman_id": "c62fb38f-a9cb-4c54-8e12-4ebf88fa0710",
+    "name": "Kuspid HLS Live Streaming",
+    "description": "Colección completa de Postman para probar el microservicio de HLS Live Streaming de Kuspid, incluyendo flujos de registro, login, rotación de tokens (Dual-Token), telemetría de Go y listado de canales de video.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Autenticación",
+      "item": [
+        {
+          "name": "Registrar Usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alex Kuspid\",\n  \"email\": \"alex@kuspid.tv\",\n  \"password\": \"secret123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Crea una nueva cuenta de usuario en PostgreSQL y retorna el par de tokens."
+          },
+          "response": []
+        },
+        {
+          "name": "Iniciar Sesión (Login)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.access_token) {",
+                  "    pm.globals.set(\"kuspid_access_token\", jsonData.access_token);",
+                  "}",
+                  "if (jsonData.refresh_token) {",
+                  "    pm.globals.set(\"kuspid_refresh_token\", jsonData.refresh_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alex@kuspid.tv\",\n  \"password\": \"secret123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Autentica credenciales y guarda los tokens de acceso y actualización en variables globales."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Información del Usuario (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{kuspid_access_token}}"
+              },
+              {
+                "key": "X-Refresh-Token",
+                "value": "{{kuspid_refresh_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/me",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Retorna el perfil del usuario logueado y el conteo de sesiones activas en Redis."
+          },
+          "response": []
+        },
+        {
+          "name": "Cerrar Sesión (Logout)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{kuspid_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/logout",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Invalida la sesión actual en Redis y limpia las cookies del cliente."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Streaming HLS",
+      "item": [
+        {
+          "name": "Listar Canales",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{kuspid_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/stream/channels",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "stream",
+                "channels"
+              ]
+            },
+            "description": "Lista los canales disponibles en la plataforma."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Master Playlist (ABR)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{kuspid_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/master.m3u8",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "master.m3u8"
+              ]
+            },
+            "description": "Retorna la playlist maestra con las variantes multicalidad de video."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Playlist de Canal en Vivo (Sliding Window)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{kuspid_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/live.m3u8?channel=kuspid-sports",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "live.m3u8"
+              ],
+              "query": [
+                {
+                  "key": "channel",
+                  "value": "kuspid-sports"
+                }
+              ]
+            },
+            "description": "Obtiene la ventana deslizante actual con exactamente 3 segmentos de 10s (30s en total)."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Segmento .ts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{kuspid_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/stream/segments/segment0.ts",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "stream",
+                "segments",
+                "segment0.ts"
+              ]
+            },
+            "description": "Descarga los fragmentos binarios de video con formato video/mp2t."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Administración & Telemetría",
+      "item": [
+        {
+          "name": "Verificar Sesiones Activas en Redis",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{kuspid_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/sessions",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "sessions"
+              ]
+            },
+            "description": "Lista todas las conexiones activas registradas en el clúster de Redis."
+          },
+          "response": []
+        },
+        {
+          "name": "Forzar Salida (Revocar Sesiones)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{kuspid_access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"colocar-aqui-user-id\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/admin/sessions/revoke",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "sessions",
+                "revoke"
+              ]
+            },
+            "description": "Revoca todas las sesiones de forma remota en Redis para el ID de usuario provisto."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Telemetría en Vivo (RAM y Goroutines)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{kuspid_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/metrics",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "metrics"
+              ]
+            },
+            "description": "Obtiene estadísticas del uso de memoria runtime de Go, cantidad de Goroutines del servidor y clientes WebSockets conectados."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

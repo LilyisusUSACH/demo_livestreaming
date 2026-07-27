@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuspid HLS - Transmisión en Vivo HD y 3D en Tiempo Real</title>
+    <meta name="description" content="Sintoniza transmisiones en vivo HD y 4K con tecnología HLS, chat interactivo en vivo, modo TV retro analógico y escenario 3D de la Cordillera de los Andes de Chile.">
+    <meta name="keywords" content="Kuspid, Live Streaming, HLS, 3D WebGL, Three.js, Redis, TV en Vivo, Deportes, Cine">
+    <meta name="author" content="Kuspid Live Team">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Kuspid HLS - Transmisión en Vivo HD y 3D">
+    <meta property="og:description" content="Sintoniza transmisiones en vivo HD y 4K con tecnología HLS, chat interactivo en vivo y modo TV retro.">
+    <meta property="og:image" content="/static/icon-512.png">
+    <meta property="og:url" content="http://localhost:8080/player">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Kuspid HLS - Transmisión en Vivo HD y 3D">
+    <meta name="twitter:description" content="Sintoniza transmisiones en vivo HD y 4K con tecnología HLS, chat interactivo en vivo y modo TV retro.">
+    <meta name="twitter:image" content="/static/icon-512.png">
+
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    <link rel="manifest" href="/static/site.webmanifest">
+
+    <!-- Google Fonts, Three.js & HLS.js -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <!-- JSON-LD Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BroadcastEvent",
+      "name": "Kuspid HLS Live Streaming",
+      "description": "Señal de televisión HD y 4K en tiempo real con reproductor interactivo HLS.",
+      "isLiveBroadcast": true,
+      "startDate": "2026-01-01T00:00:00Z",
+      "video": {
+        "@type": "VideoObject",
+        "name": "Kuspid Sports HD Live",
+        "description": "Transmisión deportiva en vivo en alta definición con baja latencia.",
+        "thumbnailUrl": "/static/icon-512.png",
+        "uploadDate": "2026-01-01T00:00:00Z"
+      }
+    }
+    </script>
+</head>
+<body>
+    <canvas id="webgl-canvas" aria-label="Escenario 3D de la Cordillera de los Andes de Chile"></canvas>
+
+    <!-- 3D Holographic Left Channels Sidebar Drawer -->
+    <aside id="channels-drawer" class="channels-drawer" aria-label="Selector de canales">
+        <div class="drawer-header">
+            <h2 class="drawer-title" style="font-size: 1.05rem;">Selector de canales</h2>
+            <button id="btn-close-drawer" class="drawer-close-btn" aria-label="Cerrar selector de canales">✕</button>
+        </div>
+        <div id="kuspid-drawer-list" class="drawer-channels-list"></div>
+    </aside>
+    <div id="drawer-backdrop" class="drawer-backdrop"></div>
+
+    <!-- HIGH-PERFORMANCE 2D VINTAGE CRT TV OVERLAY -->
+    <div id="retro-tv-stage" class="retro-2d-stage" aria-label="Modo Televisor Retro Analógico 2D">
+        <div class="retro-2d-cabinet">
+            <!-- 2D CRT Screen Container -->
+            <div class="retro-2d-screen-frame">
+                <video id="retro-hls-video" class="retro-2d-screen" autoplay playsinline aria-label="Pantalla CRT Retro"></video>
+                <div class="crt-scanlines-overlay"></div>
+            </div>
+
+            <!-- Mechanical Control Panel -->
+            <div class="retro-2d-controls">
+                <div class="retro-brand-plate">KUSPID 1984</div>
+
+                <div class="retro-knob-box">
+                    <span class="retro-knob-label">EFECTO CRT</span>
+                    <button id="btn-toggle-crt-effect" class="retro-switch-btn active" title="Activar / Desactivar efecto CRT y scanlines">CRT: ON</button>
+                </div>
+
+                <div class="retro-knob-box">
+                    <span class="retro-knob-label">CAMBIAR CANAL</span>
+                    <button id="retro-knob-channel" class="retro-knob" title="Girar perilla de canal" aria-label="Girar perilla de canal"></button>
+                    <span id="retro-channel-display" style="font-family: 'VT323', monospace; font-size: 1.1rem; color: #fef08a;">CH 01</span>
+                </div>
+
+                <div class="retro-knob-box">
+                    <span class="retro-knob-label">VOLUMEN</span>
+                    <button id="retro-knob-volume" class="retro-knob" title="Girar perilla de volumen" aria-label="Girar perilla de volumen"></button>
+                </div>
+
+                <button id="btn-exit-retro" class="btn-exit-retro">✕ VOLVER A MODO KUSPID</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-wrapper">
+        <header class="navbar" role="banner">
+            <div class="brand">
+                <div class="brand-diamond"></div>
+                <div>
+                    <h1 class="brand-title" style="margin: 0; font-size: 1.15rem; line-height: 1.1;">KUSPID</h1>
+                    <div class="brand-subtitle">SEÑAL EN VIVO</div>
+                </div>
+            </div>
+
+            <div class="nav-actions">
+                <button id="btn-retro-toggle" class="btn-kuspid-outline btn-retro-mode" title="Cambiar a Televisor Antiguo 2D Analógico" aria-label="Activar Modo Retro 2D">
+                    <span>📺</span>
+                    <span>MODO RETRO</span>
+                </button>
+
+                <button id="btn-channels-toggle" class="btn-kuspid-outline" aria-label="Abrir lista de canales">
+                    <span class="material-symbols-rounded" aria-hidden="true">live_tv</span>
+                    <span>Canales</span>
+                </button>
+
+                <!-- User Profile & Interactive Dropdown Menu -->
+                <div class="user-menu-wrapper">
+                    <button id="user-profile-badge" class="user-profile-badge" aria-label="Menú de perfil de usuario">
+                        <span class="material-symbols-rounded" aria-hidden="true">person</span>
+                        <span id="profile-user-name">Usuario</span>
+                        <span id="profile-sessions-count" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); padding: 0.15rem 0.45rem; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">1 sesión</span>
+                    </button>
+
+                    <div id="user-dropdown-menu" class="user-dropdown-menu">
+                        <div class="dropdown-header">
+                            <div id="dropdown-user-name" class="dropdown-user-name">Alex Turner</div>
+                            <div id="dropdown-user-email" class="dropdown-user-email">alex@kuspid.tv</div>
+                        </div>
+
+                        <div class="dropdown-divider"></div>
+
+                        <div class="dropdown-session-info">
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">Estado de cuenta:</span>
+                            <div id="dropdown-session-status" class="dropdown-session-status">🟢 1 dispositivo conectado</div>
+                        </div>
+
+                        <div class="dropdown-divider"></div>
+
+                        <button id="btn-force-logout-other" class="dropdown-action-btn btn-danger" title="Forzar salida de otras sesiones en Redis">
+                            <span class="material-symbols-rounded" aria-hidden="true">lock_reset</span>
+                            <span>Forzar salida de otros</span>
+                        </button>
+
+                        <button onclick="logout()" class="dropdown-action-btn">
+                            <span class="material-symbols-rounded" aria-hidden="true">logout</span>
+                            <span>Cerrar sesión</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main id="player-layout" class="player-layout" role="main">
+            <!-- Main Video Stream Section -->
+            <section class="video-section" aria-label="Reproducción de la señal en vivo">
+                <!-- Custom 3D Video Player Container -->
+                <div id="video-container" class="video-container">
+                    <video id="hls-video" autoplay muted playsinline aria-label="Reproductor de video HLS en vivo"></video>
+
+                    <!-- Top Left Live Badge -->
+                    <div class="live-badge-top">
+                        <div class="live-dot"></div>
+                        <span>EN VIVO</span>
+                    </div>
+
+                    <!-- Central Fade Overlay on Pause/Play -->
+                    <div id="center-overlay" class="center-overlay">
+                        <div class="center-logo-box">
+                            <div class="brand-diamond" style="width: 44px; height: 44px;"></div>
+                            <span style="font-family: 'Sora', sans-serif; font-size: 2rem; font-weight: 800;">KUSPID</span>
+                        </div>
+                        <button id="center-play-btn" class="center-play-btn" title="Reproducir Transmisión" aria-label="Botón central de reproducción">▶</button>
+                    </div>
+
+                    <!-- Custom Control Bar -->
+                    <div id="custom-controls" class="custom-controls" role="toolbar" aria-label="Controles del reproductor">
+                        <div class="controls-group">
+                            <button id="btn-play-pause" class="ctrl-btn" title="Play / Pausa" aria-label="Reproducir o Pausar"><span class="material-symbols-rounded" aria-hidden="true">pause</span></button>
+
+                            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                <button id="btn-mute" class="ctrl-btn" title="Silenciar / Activar Sonido" aria-label="Silenciar o Activar Sonido"><span class="material-symbols-rounded" aria-hidden="true">volume_off</span></button>
+                                <input type="range" id="volume-slider" class="volume-slider" min="0" max="1" step="0.05" value="0" aria-label="Control de volumen">
+                            </div>
+
+                            <div id="live-badge" class="live-edge-btn" title="Saltar al punto en vivo" role="button" aria-label="Saltar al punto en vivo">
+                                <div style="width: 7px; height: 7px; background: oklch(0.15 0.02 258); border-radius: 50%; animation: livePulse 1.5s infinite;"></div>
+                                <span>EN VIVO</span>
+                            </div>
+                        </div>
+
+                        <div class="controls-group">
+                            <select id="quality-select" class="quality-select" aria-label="Seleccionar calidad de señal">
+                                <option value="1080p">1080p · 30fps (TV Standard)</option>
+                                <option value="720p">720p · 30fps</option>
+                                <option value="480p">480p · 30fps</option>
+                            </select>
+
+                            <button id="btn-fullscreen" class="ctrl-btn" title="Pantalla completa" aria-label="Modo Pantalla Completa">⛶</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stream Title & Live Viewers Info Bar -->
+                <div class="stream-info-bar">
+                    <div>
+                        <h2 id="stream-title" class="stream-title" style="margin: 0; font-size: 1.15rem;">Kuspid Sports HD</h2>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Deportes · Ventana deslizante HLS de 30s</div>
+                    </div>
+                    <div class="viewers-counter">
+                        <span>👁️</span>
+                        <span id="live-viewers-count">1 espectador en vivo</span>
+                    </div>
+                </div>
+
+                <!-- Diagnóstico de Señal ("Stats for Nerds" Collapsible Panel) -->
+                <div class="telemetry-container">
+                    <button id="btn-toggle-telemetry" class="telemetry-toggle-btn" aria-label="Mostrar u ocultar diagnóstico de señal">
+                        <span>DIAGNÓSTICO DE SEÑAL</span>
+                        <span id="telemetry-chevron">▼</span>
+                    </button>
+                    <div id="telemetry-grid" class="telemetry-grid" style="display: none;">
+                        <div>
+                            <div class="telemetry-val" id="hud-ram">0.00 MB</div>
+                            <div class="telemetry-label">RAM (Go)</div>
+                        </div>
+                        <div>
+                            <div class="telemetry-val" id="hud-goroutines">0</div>
+                            <div class="telemetry-label">Goroutines</div>
+                        </div>
+                        <div>
+                            <div class="telemetry-val" id="hud-bitrate">5.0 Mbps</div>
+                            <div class="telemetry-label">Bitrate</div>
+                        </div>
+                        <div>
+                            <div class="telemetry-val" id="hud-sequence">#0</div>
+                            <div class="telemetry-label">Secuencia</div>
+                        </div>
+                        <div>
+                            <div class="telemetry-val" id="hud-buffer">0.0s</div>
+                            <div class="telemetry-label">Búfer</div>
+                        </div>
+                        <div>
+                            <div class="telemetry-val" id="hud-conns">0</div>
+                            <div class="telemetry-label">Conexiones WS</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chat & Reactions Sidebar -->
+            <aside id="chat-sidebar" class="sidebar" aria-label="Chat interactivo en vivo">
+                <div class="sidebar-header">
+                    <h2>Chat en vivo</h2>
+                    <button id="btn-toggle-chat" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem;" title="Colapsar chat" aria-label="Colapsar panel de chat">›</button>
+                </div>
+
+                <div id="chat-box" class="chat-box" role="log" aria-live="polite"></div>
+
+                <div class="reaction-bar" role="toolbar" aria-label="Reacciones flotantes en vivo">
+                    <button class="reaction-btn" data-reaction="heart" aria-label="Reaccionar con corazón"><span class="reaction-sprite reaction-sprite--heart" aria-hidden="true"></span></button>
+                    <button class="reaction-btn" data-reaction="fire" aria-label="Reaccionar con fuego"><span class="reaction-sprite reaction-sprite--fire" aria-hidden="true"></span></button>
+                    <button class="reaction-btn" data-reaction="rocket" aria-label="Reaccionar con cohete"><span class="reaction-sprite reaction-sprite--rocket" aria-hidden="true"></span></button>
+                    <button class="reaction-btn" data-reaction="celebrate" aria-label="Reaccionar con fiesta"><span class="reaction-sprite reaction-sprite--celebrate" aria-hidden="true"></span></button>
+                    <button id="btn-toggle-reactions-visibility" class="btn-kuspid-outline" style="font-size: 0.72rem; padding: 0.25rem 0.5rem;" title="Activar / Desactivar pantalla flotante de reacciones">✨ ON</button>
+                </div>
+
+                <form id="chat-form" class="chat-input-wrapper">
+                    <input type="text" id="chat-input" class="chat-input" placeholder="Escribe un mensaje…" required autocomplete="off" aria-label="Campo para enviar mensaje al chat">
+                    <button type="submit" class="btn-gold" style="width: auto; padding: 0.5rem 1rem; border-radius: 8px;">Enviar</button>
+                </form>
+            </aside>
+
+            <!-- Collapsed Chat Button Indicator -->
+            <button id="btn-open-chat" class="collapsed-chat-btn" style="display: none;" aria-label="Abrir panel de chat">
+                <span style="font-size: 1.1rem;">‹</span>
+                <span style="font-size: .7rem; writing-mode: vertical-rl; color: var(--text-muted);">CHAT</span>
+            </button>
+        </main>
+    </div>
+
+    <script src="/static/js/scene3d.js"></script>
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/player.js"></script>
+    <script src="/static/js/chat.js"></script>
+</body>
+</html>

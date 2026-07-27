@@ -1,0 +1,168 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Kuspid HLS Live Streaming API",
+    "description": "API interactiva de Live Streaming HLS con sliding window, autenticación JWT con doble token, revocación en Redis, telemetría y servidor WebSockets en Go.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Kuspid Live Team",
+      "url": "https://github.com/kuspid_live"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Servidor de Desarrollo / Docker"
+    }
+  ],
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "summary": "Crear Cuenta de Usuario",
+        "tags": ["Autenticación"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email", "password"],
+                "properties": {
+                  "name": { "type": "string", "example": "Alex Turner" },
+                  "email": { "type": "string", "format": "email", "example": "alex@kuspid.tv" },
+                  "password": { "type": "string", "format": "password", "example": "Secret123!" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Usuario registrado exitosamente" },
+          "400": { "description": "Datos de entrada inválidos" },
+          "409": { "description": "El email ya se encuentra registrado" },
+          "429": { "description": "Demasiadas peticiones (Rate Limiter)" }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "Iniciar Sesión",
+        "description": "Autentica credenciales y emite Token Pair (Access Token + Refresh Token de 30 días guardado en Redis).",
+        "tags": ["Autenticación"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string", "format": "email", "example": "alex@kuspid.tv" },
+                  "password": { "type": "string", "format": "password", "example": "Secret123!" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Autenticación exitosa y emisión de cookies HTTP-Only" },
+          "401": { "description": "Credenciales inválidas" }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "summary": "Cerrar Sesión (Revocación en Redis)",
+        "tags": ["Autenticación"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Sesión cerrada y token destruido en Redis" }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "summary": "Obtener Información de Sesión Activa",
+        "tags": ["Autenticación"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Datos del usuario autenticado" },
+          "401": { "description": "No autorizado" }
+        }
+      }
+    },
+    "/live.m3u8": {
+      "get": {
+        "summary": "Obtener Manifiesto HLS Live Streaming (30s Sliding Window)",
+        "description": "Genera dinámicamente el manifiesto .m3u8 con los 3 segmentos activos y tag EXT-X-MEDIA-SEQUENCE incremental.",
+        "tags": ["Streaming HLS"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "channel",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "default": "kuspid-sports" },
+            "description": "ID del canal Kuspid"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Manifiesto .m3u8 application/vnd.apple.mpegurl",
+            "content": { "application/vnd.apple.mpegurl": {} }
+          }
+        }
+      }
+    },
+    "/master.m3u8": {
+      "get": {
+        "summary": "Obtener Master Playlist Multicalidad (ABR)",
+        "description": "Retorna la Master Playlist HLS con las variantes 1080p, 720p y 480p.",
+        "tags": ["Streaming HLS"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Master Playlist HLS ABR" }
+        }
+      }
+    },
+    "/api/stream/channels": {
+      "get": {
+        "summary": "Listar Canales Kuspid Disponibles",
+        "tags": ["Streaming HLS"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Lista de canales en vivo" }
+        }
+      }
+    },
+    "/api/metrics": {
+      "get": {
+        "summary": "Telemetría del Servidor Go & Uso de RAM",
+        "tags": ["Monitoreo & Telemetría"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Métricas runtime.MemStats, Goroutines y WebSockets" }
+        }
+      }
+    },
+    "/api/ws": {
+      "get": {
+        "summary": "Conexión WebSockets Chat & Reacciones 3D por Canal",
+        "tags": ["WebSockets"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "101": { "description": "Upgrade de HTTP a WebSocket" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

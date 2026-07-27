@@ -1,0 +1,9 @@
+.git
+.agents
+hls test
+hls test.zip
+**/.DS_Store
+data
+*.db
+*.db-shm
+*.db-wal
