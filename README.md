@@ -3,8 +3,9 @@
 ¡Bienvenido al repositorio de **Kuspid HLS Live Streaming** en **Go (Golang)**!
 
 > 🌐 **Despliegue en Vivo (Producción GCP):** El aplicativo se encuentra desplegado y funcionando de forma segura en **[https://test.lsignach.cl/player](https://test.lsignach.cl/player)**.
+> 📱 **Soporte PWA (Progressive Web App):** Al acceder desde dispositivos móviles (Android / iOS / Tablet), la plataforma funciona como una **PWA nativa** instalable desde el navegador ("Añadir a la pantalla de inicio" / *Add to Home Screen*) con soporte manifest standalone, respuesta responsive optimizada y visualización sin barras del navegador.
 
-Esta plataforma entrega una solución de nivel productivo para la transmisión de **HLS Live Streaming dinámico con Sliding Window (30 segundos)**, autenticación segura con **Patrón de Doble Token (JWT + Redis 7)**, base de datos **PostgreSQL 16**, caché de revocación y almacenamiento rápido de chat en **Redis 7**, servidor de **WebSockets en tiempo real por canal**, **Hardening de Seguridad** y un **Frontend 3D Cinematográfico** desarrollado con **Three.js y WebGL**.
+Esta plataforma entrega una solución de nivel productivo para la transmisión de **HLS Live Streaming dinámico con Sliding Window (30 segundos)**, autenticación segura con **Patrón de Doble Token (JWT + Redis 7)**, base de datos **PostgreSQL 16**, caché de revocación y almacenamiento rápido de chat en **Redis 7**, servidor de **WebSockets en tiempo real por canal**, **Hardening de Seguridad**, **Soporte PWA Móvil Standalone** y un **Frontend 3D Cinematográfico** desarrollado con **Three.js y WebGL**.
 
 ---
 
@@ -21,8 +22,10 @@ Esta plataforma entrega una solución de nivel productivo para la transmisión d
      - `kuspid-tech` (Tecnología y Gaming)
    - **HUD de Telemetría Go en Vivo**: Uso de memoria RAM en tiempo real (`runtime.MemStats`), Goroutines activas, secuencia `#EXT-X-MEDIA-SEQUENCE`, estado del búfer del video y conexiones WebSockets activas.
    - **Chat en Vivo & Reacciones en Ráfaga (WebSockets)**: Los mensajes y reacciones emojis fluyen en tiempo real en espacio de coordenadas WebGL sobre la pantalla. Incluye interruptor de visibilidad `✨ ON / OFF` con persistencia en `localStorage`.
+   - **Experiencia Responsive & PWA Móvil**: Adaptado al 100% para pantallas móviles (diseño sin desborde, controles táctiles y posibilidad de instalarse como aplicación independiente PWA).
 
 ---
+
 
 ## 🛠️ Arquitectura e Hitos Técnicos (Senior Backend in Go)
 
