@@ -140,8 +140,22 @@ Tener instalado [Docker Desktop](https://www.docker.com/products/docker-desktop/
 Para levantar el microservicio de Go, la base de datos PostgreSQL 16 y el caché Redis 7:
 
 ```pwsh
-docker compose up --build
+docker compose up --build -d
 ```
+
+> [!IMPORTANT]
+> **Integración con tu Caddy Server en Producción (Host/VM):**
+> Dado que tu máquina virtual ya tiene un contenedor Caddy principal (`lsignach-caddy-1`) sirviendo en los puertos `80`/`443`, el archivo `docker-compose.yml` de este proyecto se configuró para exponer el puerto `8080` de forma interna en `127.0.0.1:8080` (localhost) por motivos de seguridad.
+>
+> Para habilitar la señal bajo el dominio `test.lsignach.cl`, debes copiar el bloque de configuración del archivo **[Caddyfile](file:///c:/Users/aleje/Documents/gh/test_zapping/Caddyfile)** provisto en la raíz de este proyecto e integrarlo dentro del **Caddyfile principal de tu VM**.
+>
+> **Configuración a añadir en el Caddyfile del Host:**
+> ```text
+> test.lsignach.cl {
+>     reverse_proxy localhost:8080
+> }
+> ```
+> Tras guardarlo, recarga la configuración del Caddy principal de tu host (`caddy reload` o reiniciando el contenedor `lsignach-caddy-1`).
 
 ### Rutas del Aplicativo
 
@@ -152,7 +166,8 @@ docker compose up --build
 * **Documentación de la API**: [https://test.lsignach.cl/swagger.html](https://test.lsignach.cl/swagger.html)
 
 #### En Desarrollo Local:
-* Si estás probando de forma local, puedes mapear temporalmente el puerto `8080:8080` de `kuspid_app` en tu `docker-compose.yml` para acceder a [http://localhost:8080/player](http://localhost:8080/player).
+* Si estás probando de forma local, puedes cambiar el mapeo en `docker-compose.yml` de `127.0.0.1:8080:8080` a `8080:8080` para acceder desde cualquier interfaz de red a [http://localhost:8080/player](http://localhost:8080/player).
+
 
 ---
 

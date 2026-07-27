@@ -6,8 +6,9 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: kuspid_hls_app
-    expose:
-      - "8080"
+    # Exponemos el puerto 8080 localmente (127.0.0.1) para que solo el Caddy principal de la VM tenga acceso por seguridad
+    ports:
+      - "127.0.0.1:8080:8080"
     environment:
       - PORT=8080
       - DB_HOST=postgres
@@ -52,22 +53,6 @@ services:
       - redis_data:/data
     restart: unless-stopped
 
-  caddy:
-    image: caddy:2-alpine
-    container_name: kuspid_caddy
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - kuspid_app
-    restart: unless-stopped
-
 volumes:
   postgres_data:
   redis_data:
-  caddy_data:
-  caddy_config:
